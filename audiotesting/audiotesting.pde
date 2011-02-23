@@ -81,6 +81,11 @@ float beatStrength = 0;
 float snareStrength = 0;
 int output;
 int cycleType = 1;
+int counter = 0;
+boolean[] bOutput = new boolean[48];
+boolean[] row = new boolean[8];
+int rowInt = 0;
+
 void draw()
 {
   background(0);
@@ -143,7 +148,6 @@ void draw()
   ellipse(350,200, correctedvalue, correctedvalue);
   
   if (correctedvalue > 40){
-    print(ledPin + " - " + Arduino.HIGH + ";  ");
     arduino.analogWrite(6, Arduino.HIGH);
     //arduino.digitalWrite(ledPin, Arduino.HIGH);
   }else{
@@ -230,8 +234,19 @@ void draw()
       value = volumeAll(i) ;
     }
     
-    
     //on, cycleAll, cycleChevsVolLines, dualEQ
+    
+    boolean boolVal = value > 0.4 ? true : false;
+    bOutput[i] = boolVal;
+    if (bOutput[i]) print("1");
+    else print("0");
+
+    
+    //boolOutput[i] = boolVal;
+    //int octalAddress =  (10*(i/8) + i%8);
+    //arduino.analogWrite(6, (boolVal + octalAddress));
+    
+
     if (i%2 == 0){
       fill(200*value, 200*value, 0);
     } else {
@@ -239,6 +254,25 @@ void draw()
     }
     ellipse(xVals[i],yVals[i], 9, 9);
   }
+  
+  print("          ");
+  for (int i = 0; i < 6; i++){
+    print(" ");
+    rowInt = 0;
+    for (int j=0; j < 8; j++){
+      rowInt += pow(2, j) * (bOutput[i*8 + j] ? 1 : 0);
+      //row[j] = bOutput[i*8 + j];
+      //if (row[j]) print("1");
+      //else print("0");
+    }
+   print(rowInt);
+   // arduino.analogWrite(i, rowInt);
+  }
+  
+  
+  
+  println("");
+  counter++;
   fill(255, 255, 255);
   
   

@@ -215,6 +215,18 @@ void draw()
 
     };
     
+    
+    
+  //the real positions don't match these. Here are the conversions.
+  int[] converter = {
+    43, 42, 36, 30, 24, 19, 18, 12, 6, 0, //top lines
+    37, 38, 44, 45, 46, 39, 40, 
+    25, 26, 31, 32, 33, 27, 28,
+    13, 14, 20, 21, 22, 15, 16,
+    1, 2, 7, 8, 9, 3, 4,
+    47, 41, 35, 34, 29, 23, 17, 11, 10, 5
+  };
+    
 
   noStroke();
   float value;
@@ -237,14 +249,12 @@ void draw()
     //on, cycleAll, cycleChevsVolLines, dualEQ
     
     boolean boolVal = value > 0.4 ? true : false;
-    bOutput[i] = boolVal;
-    if (bOutput[i]) print("1");
-    else print("0");
+    bOutput[converter[i]] = boolVal;
+    //if (bOutput[i]) print("1");
+    //else print("0");
 
-    
-    //boolOutput[i] = boolVal;
     //int octalAddress =  (10*(i/8) + i%8);
-    //arduino.analogWrite(6, (boolVal + octalAddress));
+
     
 
     if (i%2 == 0){
@@ -255,9 +265,7 @@ void draw()
     ellipse(xVals[i],yVals[i], 9, 9);
   }
   
-  print("          ");
   for (int i = 0; i < 6; i++){
-    print(" ");
     rowInt = 0;
     for (int j=0; j < 8; j++){
       rowInt += pow(2, j) * (bOutput[i*8 + j] ? 1 : 0);
@@ -265,28 +273,15 @@ void draw()
       //if (row[j]) print("1");
       //else print("0");
     }
-   print(rowInt);
-   // arduino.analogWrite(i, rowInt);
+   //print(rowInt);
+   arduino.analogWrite(i, rowInt);
   }
   
-  
-  
-  println("");
-  counter++;
   fill(255, 255, 255);
   
   
   
   //End BP Table Drawing
-  
-  
-  //arduino.analogWrite(leds[(snare)%4], constrain(output, 0, 255));
-  //arduino.analogWrite(leds[(snare+1)%4], constrain(complement, 0, 255));
-  //arduino.analogWrite(leds[(snare+2)%4], constrain(output, 0, 255));
-  //arduino.analogWrite(leds[(snare+3)%4], constrain(complement, 0, 255));
-  
-  
-  //arduino.analogWrite(leds[(snare+1)%4], constrain(int(snareStrength), 0, 255));
 }
 
 float on(int index){

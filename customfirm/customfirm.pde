@@ -1,6 +1,6 @@
 // Send numeric data to Arduino through Firmata library using a reserved pin.
 // The data received on the reserved pin is handled as needed
-// In this example, the brightness of an RGB LED is controlled by the value received through the pin
+
 
 #include <Firmata.h>
 #include <Sprite.h>
@@ -28,13 +28,22 @@ void loop()
 }
 
 // Called whenever Arduino receives an analog msg thru Firmata
-void callback(byte pin, int value)
+void callback(byte row, int value)
 {
-
+  
+  for (int i=0; i < 8; i++){
+    if (bitRead(row, i) == 1) {//led on
+      1+1;
+      //ledMatrix.write(row,i,HIGH);
+    }else{//led off
+      1+1;
+      //ledMatrix.write(row,i,LOW);
+    }
+  }
   int val = value / 100;
   int x = (value / 10)%10;
   int y = value % 10;
-  //ledMatrix.write(x,y,value);
+
   digitalWrite(13, value);
 
 }

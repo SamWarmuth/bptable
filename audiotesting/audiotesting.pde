@@ -48,7 +48,7 @@ void setup()
   //for (int i = 0; i < 4; i++) arduino.pinMode(leds[i], Arduino.OUTPUT);
   
   arduino.pinMode(ledPin, Arduino.OUTPUT);
-  size(800, 620);
+  size(1250, 725);
  
   minim = new Minim(this);
  
@@ -80,11 +80,12 @@ float[] multiaverage = new float[100];
 float beatStrength = 0;
 float snareStrength = 0;
 int output;
-int cycleType = 1;
+int cycleType = 4;
 int counter = 0;
 boolean[] bOutput = new boolean[48];
 boolean[] row = new boolean[8];
 int rowInt = 0;
+int[] converter = new int[48];
 
 void draw()
 {
@@ -147,13 +148,13 @@ void draw()
 
   ellipse(350,200, correctedvalue, correctedvalue);
   
-  if (correctedvalue > 40){
-    arduino.analogWrite(6, Arduino.HIGH);
+  //if (correctedvalue > 40){
+    //arduino.analogWrite(6, Arduino.HIGH);
     //arduino.digitalWrite(ledPin, Arduino.HIGH);
-  }else{
-    arduino.analogWrite(6, Arduino.LOW);
+  //}else{
+    //arduino.analogWrite(6, Arduino.LOW);
     //arduino.digitalWrite(ledPin, Arduino.LOW);
-  }
+  //}
   
   int centerFreq = int(theMiddle/2);
   if (centerFreq > 255) centerFreq = 255;
@@ -218,14 +219,17 @@ void draw()
     
     
   //the real positions don't match these. Here are the conversions.
-  int[] converter = {
-    43, 42, 36, 30, 24, 19, 18, 12, 6, 0, //top lines
-    37, 38, 44, 45, 46, 39, 40, 
-    25, 26, 31, 32, 33, 27, 28,
-    13, 14, 20, 21, 22, 15, 16,
-    1, 2, 7, 8, 9, 3, 4,
-    47, 41, 35, 34, 29, 23, 17, 11, 10, 5
+   int [] converter2 = {
+    9, 12, 36, 10, 24, 19, 18, 42, 20, 0, //top lines
+    
+    13, 14, 6, 21, 22, 15, 16, // second right chev
+    1, 2, 7, 8, 43, 3, 4, // far right chev
+    40, 39, 46, 45, 44, 38, 37,//far left chev
+
+    25, 26, 31, 32, 33, 27, 28,// second left chev
+    47, 41, 35, 34, 29, 23, 17, 11, 30, 5 // bottom row
   };
+  converter = converter2;
     
 
   noStroke();
@@ -248,7 +252,7 @@ void draw()
     
     //on, cycleAll, cycleChevsVolLines, dualEQ
     
-    boolean boolVal = value > 0.4 ? true : false;
+    boolean boolVal = value > 0.3 ? true : false;
     bOutput[converter[i]] = boolVal;
     //if (bOutput[i]) print("1");
     //else print("0");
@@ -265,15 +269,14 @@ void draw()
     ellipse(xVals[i],yVals[i], 9, 9);
   }
   
-  for (int i = 0; i < 6; i++){
+  for (int i = 0; i < 8; i++){
     rowInt = 0;
-    for (int j=0; j < 8; j++){
-      rowInt += pow(2, j) * (bOutput[i*8 + j] ? 1 : 0);
+    for (int j=0; j < 6; j++){
+      rowInt += pow(2, j) * (bOutput[i*6 + j] ? 1 : 0);
       //row[j] = bOutput[i*8 + j];
       //if (row[j]) print("1");
       //else print("0");
     }
-   //print(rowInt);
    arduino.analogWrite(i, rowInt);
   }
   
@@ -297,8 +300,9 @@ float volumeAllBiasOn(int index){
 }
 
 float cycleAll(int index){//cycle through all LEDs
-  int timePeriod = int(millis()/75)%48; // twentieth of a second
-  if (Math.abs((index+5) - timePeriod) < 5) return 1.0;
+  int timePeriod = int(millis()/750)%48; // twentieth of a second
+  println(timePeriod);
+  if (index == timePeriod) return 1.0;
   else return 0.0;
 }
 

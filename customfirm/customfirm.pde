@@ -12,37 +12,43 @@ Matrix ledMatrix = Matrix(2, 3, 4);
 
 void setup()
 {
-
+    //ledMatrix.setScanLimit(6);
     Firmata.setFirmwareVersion(0, 1);
     Firmata.attach(ANALOG_MESSAGE, callback); // Call this function when analog writes are received
-
     Firmata.begin(57600);
+    //ledMatrix.clear(); 
 
 }
 
+
+
+
 void loop()
 {
-    while(Firmata.available()) { // Handles Firmata serial input
-        Firmata.processInput();
+   while(Firmata.available()) { // Handles Firmata serial input
+       Firmata.processInput();
+   }
+   /*
+    for (int i=0; i<8; i++){
+     for (int j=2; j<8; j++){
+      ledMatrix.write(j,i,HIGH);
+      delay(50);
+     } 
     }
+  ledMatrix.clear();
+  */
 }
 
 // Called whenever Arduino receives an analog msg thru Firmata
 void callback(byte row, int value)
 {
-  
   for (int i=0; i < 8; i++){
-    if (bitRead(row, i) == 1) {//led on
-      1+1;
-      //ledMatrix.write(row,i,HIGH);
+    if (bitRead(value, i)) {//led on
+      ledMatrix.write(i+2,row,HIGH);
     }else{//led off
-      1+1;
-      //ledMatrix.write(row,i,LOW);
+      ledMatrix.write(i+2,row,LOW);
     }
   }
-  int val = value / 100;
-  int x = (value / 10)%10;
-  int y = value % 10;
 
   digitalWrite(13, value);
 

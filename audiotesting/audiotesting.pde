@@ -48,7 +48,7 @@ void setup()
   //for (int i = 0; i < 4; i++) arduino.pinMode(leds[i], Arduino.OUTPUT);
   
   arduino.pinMode(ledPin, Arduino.OUTPUT);
-  size(1250, 725);
+  size(800, 650);
  
   minim = new Minim(this);
  
@@ -80,12 +80,13 @@ float[] multiaverage = new float[100];
 float beatStrength = 0;
 float snareStrength = 0;
 int output;
-int cycleType = 4;
+int cycleType = 11;
 int counter = 0;
 boolean[] bOutput = new boolean[48];
 boolean[] row = new boolean[8];
 int rowInt = 0;
-int[] converter = new int[48];
+
+int currentLED = 0;
 
 void draw()
 {
@@ -219,17 +220,21 @@ void draw()
     
     
   //the real positions don't match these. Here are the conversions.
-   int [] converter2 = {
-    9, 12, 36, 10, 24, 19, 18, 42, 20, 0, //top lines
+   int[] converter = {
+    0, 6, 12, 13, 18, 42,40,30,31,24, //top lines
     
-    13, 14, 6, 21, 22, 15, 16, // second right chev
-    1, 2, 7, 8, 43, 3, 4, // far right chev
-    40, 39, 46, 45, 44, 38, 37,//far left chev
+    7,8,1,2,3,9,10, //far left chev
+    19,20,14,15,16,21,22,// second left chev
+    37,38,43,44,45,39,40, // second right chev
+    25,26,32,33,34,27,28, // far right chev
 
-    25, 26, 31, 32, 33, 27, 28,// second left chev
-    47, 41, 35, 34, 29, 23, 17, 11, 30, 5 // bottom row
+
+
+    4,5,11,17,23,46,47,41,35,29 // bottom row
   };
-  converter = converter2;
+  
+
+
     
 
   noStroke();
@@ -246,21 +251,23 @@ void draw()
       value = cycleAll(i);
     }else if(cycleType == 5){
       value = volumeAllBiasOn(i);
+    }else if(cycleType == 11){
+      value = justOne(i, currentLED);
     }else{
-      value = volumeAll(i) ;
+      value = volumeAll(i);
     }
     
     //on, cycleAll, cycleChevsVolLines, dualEQ
     
     boolean boolVal = value > 0.3 ? true : false;
     bOutput[converter[i]] = boolVal;
+    if (i == currentLED) println(i + " : " + converter[i]);
     //if (bOutput[i]) print("1");
     //else print("0");
 
     //int octalAddress =  (10*(i/8) + i%8);
 
     
-
     if (i%2 == 0){
       fill(200*value, 200*value, 0);
     } else {
@@ -301,8 +308,13 @@ float volumeAllBiasOn(int index){
 
 float cycleAll(int index){//cycle through all LEDs
   int timePeriod = int(millis()/750)%48; // twentieth of a second
-  println(timePeriod);
+  //println(timePeriod);
   if (index == timePeriod) return 1.0;
+  else return 0.0;
+}
+
+float justOne(int index, int selected){//cycle through all LEDs
+  if (index == selected) return 1.0;
   else return 0.0;
 }
 
@@ -404,6 +416,10 @@ void keyReleased()
   if ( key == '7' ) cycleType = 7;
   if ( key == '8' ) cycleType = 8;
   if ( key == '9' ) cycleType = 9;
+  if ( key >= 'a' && key <= 'z'){
+   println("letter pressed" + (key - 'a' + 25)); 
+   currentLED = (key - 'a' + 25);
+  }
 }
  
 void stop()

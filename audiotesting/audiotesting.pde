@@ -80,7 +80,7 @@ float[] multiaverage = new float[100];
 float beatStrength = 0;
 float snareStrength = 0;
 int output;
-int cycleType = 11;
+int cycleType = 1;
 int counter = 0;
 boolean[] bOutput = new boolean[48];
 boolean[] row = new boolean[8];
@@ -221,7 +221,7 @@ void draw()
     
   //the real positions don't match these. Here are the conversions.
    int[] converter = {
-    0, 6, 12, 13, 18, 42,40,30,31,24, //top lines
+    0, 6, 12, 13, 18, 42,36,30,31,24, //top lines
     
     7,8,1,2,3,9,10, //far left chev
     19,20,14,15,16,21,22,// second left chev
@@ -242,7 +242,7 @@ void draw()
   for(int i = 0; i < xVals.length; i++)
   {
     if (cycleType == 1){
-      value = travelingChevsVolLines(i);
+      value = travelingChevsEQLines(i);
     }else if(cycleType == 2){
       value = cycleChevsVolLines(i);
     }else if(cycleType == 3){
@@ -251,6 +251,10 @@ void draw()
       value = cycleAll(i);
     }else if(cycleType == 5){
       value = volumeAllBiasOn(i);
+    }else if(cycleType == 6){
+      value = travelingChevsVolLines(i);
+    }else if(cycleType == 7){
+      value = strobe(i);
     }else if(cycleType == 11){
       value = justOne(i, currentLED);
     }else{
@@ -261,7 +265,7 @@ void draw()
     
     boolean boolVal = value > 0.3 ? true : false;
     bOutput[converter[i]] = boolVal;
-    if (i == currentLED) println(i + " : " + converter[i]);
+    //if (i == currentLED) println(i + " : " + converter[i]);
     //if (bOutput[i]) print("1");
     //else print("0");
 
@@ -307,9 +311,9 @@ float volumeAllBiasOn(int index){
 }
 
 float cycleAll(int index){//cycle through all LEDs
-  int timePeriod = int(millis()/750)%48; // twentieth of a second
+  int timePeriod = int(millis()/40)%48; // twentieth of a second
   //println(timePeriod);
-  if (index == timePeriod) return 1.0;
+  if (Math.abs(index - timePeriod)%44 < 5) return 1.0;
   else return 0.0;
 }
 
@@ -329,6 +333,17 @@ float cycleChevsVolLines(int index){//Cycle the chevrons, brightness of lines is
 float travelingChevsVolLines(int index){
   if (index < 10 || index > 37){ // lines
     return output/255.0; //percent volume strength
+  }else{ // chevrons
+    return travelingChevLights(index);
+  } 
+}
+
+float travelingChevsEQLines(int index){
+  if (index < 10 || index > 37){ // lines
+    if (index > 20) index = (index-8)%10;
+    if (index > 4) index = 9 - index;
+    if (output > index * 15) return 1.0;
+    else return 0.0;
   }else{ // chevrons
     return travelingChevLights(index);
   } 
@@ -391,6 +406,12 @@ float travelingChevLights(int index){
     else return 0.0; 
 }
 
+float strobe(int index){
+  if (random(1) > 0.5)return 1.0;
+  else return 0.0;
+
+  
+}
 
 
 
@@ -416,6 +437,7 @@ void keyReleased()
   if ( key == '7' ) cycleType = 7;
   if ( key == '8' ) cycleType = 8;
   if ( key == '9' ) cycleType = 9;
+  println("cycletype: " +cycleType);
   if ( key >= 'a' && key <= 'z'){
    println("letter pressed" + (key - 'a' + 25)); 
    currentLED = (key - 'a' + 25);
